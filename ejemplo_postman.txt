@@ -1,0 +1,308 @@
+AUTENTICACION - NUEVOS ENCABEZADOS EN TODAS LAS SOLICITUDES
+=============================================================
+Antes de ejecutar GET, POST, PUT o DELETE, agregue en Postman (Headers):
+
+Key: X-Cedula        Value: 1
+Key: X-Contrasena    Value: 01
+
+Otras credenciales de prueba:
+  Cedula 2 / Contrasena 02 (Ana)
+  Cedula 3 / Contrasena 03 (Maria)
+
+Los datos se validan contra la tabla ventas.Programadores en MySQL.
+Con credenciales correctas se ejecuta la misma logica original del CRUD.
+Si falta un encabezado o la contrasena es incorrecta, se devuelve:
+
+HTTP 401 Unauthorized
+{
+  "Error": "Autorizacion Invalida"
+}
+
+Pruebas rapidas:
+1. GET sin encabezados: respuesta 401 y Autorizacion Invalida.
+2. GET con X-Cedula: 1 y X-Contrasena: 99: respuesta 401.
+3. GET con X-Cedula: 1 y X-Contrasena: 01: respuesta 200.
+4. Repita POST, PUT y DELETE con los dos encabezados correctos.
+
+Este ejemplo es para XAMPP / localhost y NO es OAuth 2.0.
+No envie contrasenas en encabezados por redes HTTP publicas.
+Para facilitar la practica, la columna Contrasena contiene exactamente
+los valores 01, 02 o 03. NO se usan hashes (solo para uso local).
+
+=============================================================
+
+API DE CATEGORIAS - PHP / MYSQL (CRUD COMPLETO)
+================================================
+
+OBJETIVO
+Practicar las cuatro operaciones de una API REST sencilla con Postman,
+PHP y MySQL: GET (Obtener), POST (Insertar),
+PUT (Actualizar) y DELETE (Eliminar).
+
+METODOS HTTP Y SU SIGNIFICADO
+Metodo   Operacion   Instruccion SQL   Que hace?
+------   ---------   ---------------   ---------------------------------------
+GET      Obtener     SELECT            Obtiene una o todas las categorias.
+POST     Insertar    INSERT            Inserta una nueva categoria.
+PUT      Actualizar  UPDATE            Cambia el nombre de una categoria.
+DELETE   Eliminar    DELETE            Elimina una categoria por su codigo.
+
+IMPORTANTE: GET, POST, PUT y DELETE son metodos HTTP.
+SELECT, INSERT, UPDATE y DELETE son instrucciones SQL.
+UPDATE no es un metodo HTTP. Para actualizar desde Postman se usa PUT.
+
+1. INSTALACION
+---------------
+1) Descomprimir la carpeta api_categorias en C:\xampp\htdocs\
+2) Iniciar Apache y MySQL desde el panel de XAMPP.
+3) Abrir phpMyAdmin y ejecutar el contenido de database.sql.
+4) Verificar la conexion en configuracion/datos_conexion.php.
+5) Abrir Postman. Todos los ejemplos utilizan la siguiente ruta:
+   http://localhost/api_categorias/controlador/categoria.php
+
+2. GET (OBTENER): TODAS LAS CATEGORIAS
+--------------------------------------
+Metodo HTTP: GET
+URL: http://localhost/api_categorias/controlador/categoria.php
+En Postman, pestana Headers (OBLIGATORIOS):
+  X-Cedula: 1
+  X-Contrasena: 01
+En Postman: No se envia Body.
+
+Respuesta esperada (codigo HTTP 200: consulta exitosa):
+[
+  {
+    "codigo": 1,
+    "nombre": "Computadoras"
+  },
+  {
+    "codigo": 2,
+    "nombre": "Telefonos"
+  },
+  {
+    "codigo": 3,
+    "nombre": "Impresoras"
+  },
+  {
+    "codigo": 4,
+    "nombre": "Accesorios"
+  }
+]
+
+Que ocurre? El controlador llama a listar() y el repositorio ejecuta SELECT.
+La base de datos incluye estas cuatro categorias despues de ejecutar database.sql.
+Si la tabla esta vacia, se obtiene [] (lista vacia).
+
+3. GET (OBTENER): UNA SOLA CATEGORIA
+------------------------------------
+Metodo HTTP: GET
+URL: http://localhost/api_categorias/controlador/categoria.php?codigo=1
+En Postman, pestana Headers (OBLIGATORIOS):
+  X-Cedula: 1
+  X-Contrasena: 01
+En Postman: No se envia Body.
+
+Respuesta esperada (codigo HTTP 200: consulta exitosa):
+{
+  "codigo": 1,
+  "nombre": "Computadoras"
+}
+
+Que ocurre? El controlador recibe el codigo desde la URL y llama a buscar().
+Si el codigo no existe, se devuelve "Categoria no encontrada" (HTTP 404).
+
+4. POST (INSERTAR): UNA CATEGORIA NUEVA
+---------------------------------------
+Metodo HTTP: POST
+URL: http://localhost/api_categorias/controlador/categoria.php
+En Postman, pestana Headers (OBLIGATORIOS):
+  X-Cedula: 1
+  X-Contrasena: 01
+En Postman: Body -> raw -> JSON
+
+JSON que se debe enviar:
+{
+  "codigo": 5,
+  "nombre": "Monitores"
+}
+
+Respuesta esperada (codigo HTTP 201: recurso creado correctamente):
+{
+  "Correcto": "Insercion realizada"
+}
+
+Que ocurre? El controlador crea un objeto Categoria y llama a guardar().
+El repositorio ejecuta INSERT INTO categoria (codigo, nombre) VALUES (?, ?).
+Si falta codigo o nombre, responde HTTP 400: solicitud incorrecta.
+IMPORTANTE: Los codigos 1, 2, 3 y 4 ya existen desde database.sql.
+Por eso se usa el codigo 5 para probar la insercion sin duplicar la clave primaria.
+
+5. PUT (ACTUALIZAR): LA CATEGORIA INSERTADA
+-------------------------------------------
+Metodo HTTP: PUT
+URL: http://localhost/api_categorias/controlador/categoria.php
+En Postman, pestana Headers (OBLIGATORIOS):
+  X-Cedula: 1
+  X-Contrasena: 01
+En Postman: Body -> raw -> JSON
+
+JSON que se debe enviar:
+{
+  "codigo": 5,
+  "nombre": "Monitores LED"
+}
+
+Respuesta esperada (codigo HTTP 200: operacion exitosa):
+{
+  "Correcto": "Actualizacion ejecutada",
+  "Filas modificadas": 1
+}
+
+Que ocurre? El controlador crea un objeto Categoria y llama a actualizar().
+El repositorio ejecuta UPDATE categoria SET nombre = ? WHERE codigo = ?.
+Si falta codigo o nombre, responde HTTP 400: solicitud incorrecta.
+IMPORTANTE: "Filas modificadas": 0 significa que no cambio ninguna fila;
+puede ocurrir si no existe el codigo o si el nombre ya era el mismo.
+En ambos casos, este ejemplo devuelve HTTP 200 porque no distingue entre ellos.
+
+6. DELETE (ELIMINAR): LA CATEGORIA INSERTADA
+--------------------------------------------
+Metodo HTTP: DELETE
+URL: http://localhost/api_categorias/controlador/categoria.php
+En Postman, pestana Headers (OBLIGATORIOS):
+  X-Cedula: 1
+  X-Contrasena: 01
+En Postman: Body -> raw -> JSON
+
+JSON que se debe enviar:
+{
+  "codigo": 5
+}
+
+Respuesta esperada (codigo HTTP 200: eliminacion exitosa con JSON):
+{
+  "Correcto": "Eliminacion realizada"
+}
+
+Que ocurre? El controlador recibe el codigo desde el JSON del Body y llama a eliminar().
+El repositorio ejecuta DELETE FROM categoria WHERE codigo = ?.
+Solo necesita "codigo"; si envia "nombre", se ignora.
+Si el codigo no existe, se devuelve "Categoria no encontrada" (HTTP 404).
+Si falta el codigo en el JSON, responde HTTP 400: solicitud incorrecta.
+
+7. COMPROBAR LOS DATOS EN MYSQL
+-------------------------------
+Ejecute en phpMyAdmin:
+USE ventas;
+SELECT * FROM categoria;
+
+Para probar los cuatro metodos en orden:
+1) GET sin codigo para consultar las cuatro categorias iniciales.
+2) GET con ?codigo=1 para consultar la categoria Computadoras.
+3) POST con codigo 5 y nombre "Monitores" para insertar una categoria nueva.
+4) PUT con codigo 5 y nombre "Monitores LED" para actualizarla.
+5) DELETE con JSON {"codigo":5} para eliminar la categoria creada en la prueba.
+6) GET sin codigo para comprobar que siguen las cuatro categorias iniciales.
+
+Si intenta insertar un codigo que ya existe, MySQL dara un error porque
+"codigo" es la llave primaria. En ese caso, use otro codigo.
+
+8. ORGANIZACION DEL CODIGO
+--------------------------
+configuracion/datos_conexion.php
+  Guarda el servidor, puerto, base de datos, usuario y contrasena.
+
+configuracion/conexion.php
+  Contiene ConexionBD::obtenerConexion(), que abre la conexion con PDO.
+
+modelos/Categoria.php
+  Contiene el modelo Categoria, con atributos, constructor, getters y setters.
+
+repositorios/CategoriaRepositorio.php
+  Contiene guardar(), listar(), buscar(), actualizar() y eliminar().
+  Todas las consultas SQL se realizan aqui mediante PDO.
+
+controlador/categoria.php
+  Lee los dos encabezados, llama a ProgramadorRepositorio::validar()
+  y luego ejecuta el CRUD original.
+
+repositorios/ProgramadorRepositorio.php
+  Contiene validar(cedula, contrasena): consulta si ambos datos coinciden.
+  Los encabezados se leen directamente en controlador/categoria.php.
+  Use los encabezados X-Cedula y X-Contrasena tal como estan escritos;
+  el controlador los lee unicamente con getallheaders().
+
+database.sql
+  Crea la base de datos ventas, las tablas categoria y Programadores,
+  agrega 4 categorias y 3 programadores de prueba.
+
+9. CODIGOS DE RESPUESTA HTTP
+---------------------------
+Codigo   Significado
+------   -------------------------------------------------------------
+200      Operacion exitosa, como consultar o actualizar.
+201      Recurso creado correctamente.
+204      Operacion exitosa sin contenido de respuesta.
+400      Solicitud incorrecta.
+404      Recurso no encontrado.
+500      Error interno del servidor.
+
+Ademas, esta API utiliza HTTP 405 cuando el metodo no esta permitido.
+
+DIFERENCIA ENTRE CODIGO HTTP Y MENSAJE JSON
+http_response_code(201): informa al cliente que se creo el recurso.
+echo json_encode(...): devuelve un mensaje o datos en formato JSON.
+Ambos pueden utilizarse juntos, porque cumplen funciones diferentes.
+
+CODIGOS QUE UTILIZA CADA OPERACION
+GET (Obtener):    200 si la consulta funciona; 404 si no existe el codigo buscado.
+POST (Insertar):   201 si guarda; 400 si faltan datos.
+PUT (Actualizar): 200 si procesa la actualizacion; 400 si faltan datos.
+DELETE (Eliminar): 200 si elimina y devuelve un JSON; 400 si falta el codigo;
+        404 si no existe la categoria.
+GENERAL: 405 si se usa otro metodo; 500 si ocurre un error de MySQL.
+
+NOTA SOBRE EL 204:
+El codigo 204 indica exito sin cuerpo de respuesta. No se utiliza en
+este proyecto porque queremos devolver mensajes JSON para aprender.
+Si se utilizara, no se deberia enviar echo json_encode(...).
+
+10. CONCEPTOS BASICOS
+---------------------
+$_SERVER["REQUEST_METHOD"]: indica que metodo HTTP se recibio:
+                            GET (Obtener), POST (Insertar),
+                            PUT (Actualizar) o DELETE (Eliminar).
+$_GET["codigo"]: obtiene el codigo colocado en la URL para GET (?codigo=1).
+php://input: lee el cuerpo enviado por Postman (POST, PUT y DELETE).
+json_decode(..., true): convierte el JSON recibido en un arreglo de PHP.
+json_encode(...): convierte los datos de PHP en una respuesta JSON.
+prepare(): prepara una instruccion SQL con signos ? para los parametros.
+bindValue(): coloca cada valor en su posicion, usando su tipo de dato.
+execute(): ejecuta la instruccion preparada.
+fetch(): devuelve una fila de la consulta SELECT.
+fetchAll(): devuelve todas las filas de la consulta SELECT.
+rowCount(): indica cuantas filas afecto la instruccion SQL.
+PDOException: representa un error al realizar una operacion con MySQL.
+http_response_code(...): establece el codigo de respuesta HTTP.
+Si no se indica un codigo en un caso exitoso, normalmente se responde 200.
+
+El codigo utiliza validaciones minimas para facilitar su estudio.
+Esta pensado como ejemplo de aprendizaje en un entorno local, no como
+una API publica lista para produccion. Incluye autenticacion sencilla mediante X-Cedula / X-Contrasena,
+pero no incorpora OAuth 2.0 ni permisos por rol.
+
+11. PRUEBA DE AUTORIZACION INVALIDA
+----------------------------------
+Metodo HTTP: GET
+URL: http://localhost/api_categorias/controlador/categoria.php
+En Postman, pestana Headers:
+  X-Cedula: 1
+  X-Contrasena: 99
+Respuesta esperada: HTTP 401 Unauthorized
+{
+  "Error": "Autorizacion Invalida"
+}
+Pruebe tambien quitando ambos encabezados.
+
+Recuerde: en CADA solicitud GET, POST, PUT y DELETE deben enviarse
+los encabezados X-Cedula y X-Contrasena.

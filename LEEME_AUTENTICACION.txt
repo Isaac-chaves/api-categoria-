@@ -1,0 +1,40 @@
+API DE CATEGORIAS - AUTENTICACION SENCILLA CON ENCABEZADOS
+============================================================
+
+INSTALACION
+1. Copie api_categorias a C:\xampp\htdocs\.
+2. Inicie Apache y MySQL en XAMPP.
+3. Ejecute database.sql en phpMyAdmin (crea la base ventas y ambas tablas).
+4. Revise configuracion/datos_conexion.php.
+5. Abra en Postman:
+   http://localhost/api_categorias/controlador/categoria.php
+
+CREDENCIALES PARA POSTMAN (pestana Headers)
+Cedula   Nombre    Contrasena
+1        Luis      01
+2        Ana       02
+3        Maria     03
+
+Encabezados que debe enviar en TODOS los metodos GET, POST, PUT y DELETE:
+X-Cedula: 1
+X-Contrasena: 01
+
+Si los datos existen en ventas.Programadores, la operacion del CRUD se ejecuta.
+De lo contrario se devuelve HTTP 401:
+{"Error":"Autorizacion Invalida"}
+
+QUE CAMBIO EN EL CODIGO
+- controlador/categoria.php: utiliza getallheaders() para leer los encabezados
+  X-Cedula y X-Contrasena. El operador ?? devuelve "" si faltan los datos.
+  Llama al metodo validar() del repositorio y ejecuta el CRUD si es true.
+- repositorios/ProgramadorRepositorio.php: metodo validar(cedula, contrasena)
+  que utiliza un SELECT COUNT(*) con parametros ? para comprobar ambos datos.
+- database.sql: crea Programadores e inserta 1/Luis/01, 2/Ana/02 y 3/Maria/03.
+- ejemplo_postman.txt: contiene todas las pruebas GET, POST, PUT y DELETE.
+
+No hace falta una clase Autenticacion ni un modelo Programador para esta practica.
+En Postman use exactamente X-Cedula y X-Contrasena como nombres de Headers.
+
+IMPORTANTE: esta es una demostracion didactica, NO es OAuth 2.0.
+Las contrasenas se guardan sin hash unicamente para comprender el flujo.
+No usar este sistema en produccion ni enviar las contrasenas por HTTP publico.
