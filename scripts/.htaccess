@@ -1,0 +1,2 @@
+# Los scripts de consola no deben ejecutarse por HTTP.
+Require all denied

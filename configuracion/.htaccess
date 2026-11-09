@@ -1,0 +1,3 @@
+# Bloquear el acceso web a los datos de conexion.
+# El archivo se sigue pudiendo incluir desde PHP con require_once.
+Require all denied

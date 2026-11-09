@@ -1,0 +1,806 @@
+{
+  "info": {
+    "name": "API Categorias - Pruebas",
+    "description": "Colección de pruebas de la API de categorías. Cambie la variable baseUrl por http://localhost:18080 (Docker) o por https://TU-SERVICIO.onrender.com (Render). Ejecute toda la colección con el Collection Runner.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:18080"
+    },
+    {
+      "key": "cedula",
+      "value": "1"
+    },
+    {
+      "key": "clave",
+      "value": "01"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Limpiar categoría de prueba",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"codigo\":5}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ]
+        }
+      }
+    },
+    {
+      "name": "01 - Información de la API",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"La API está en línea\", function () {",
+              "    pm.expect(pm.response.json().estado).to.eql(\"en linea\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "name": "02 - Diagnóstico de la base",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Base de datos conectada\", function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.estado).to.eql(\"ok\");",
+              "    pm.expect(body.base_de_datos).to.eql(\"conectada\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/salud.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "salud.php"
+          ]
+        }
+      }
+    },
+    {
+      "name": "03 - Listar categorías",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Devuelve un arreglo con al menos 4 categorías\", function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body).to.be.an(\"array\");",
+              "    pm.expect(body.length).to.be.at.least(4);",
+              "});",
+              "pm.test(\"Cada categoría tiene codigo y nombre\", function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body[0]).to.have.property(\"codigo\");",
+              "    pm.expect(body[0]).to.have.property(\"nombre\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ]
+        }
+      }
+    },
+    {
+      "name": "04 - Consultar categoría 1",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Devuelve la categoría 1\", function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.codigo).to.eql(1);",
+              "    pm.expect(body.nombre).to.eql(\"Computadoras\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php?codigo=1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ],
+          "query": [
+            {
+              "key": "codigo",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "05 - Categoría inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"Mensaje de error\", function () {",
+              "    pm.expect(pm.response.json().Error).to.eql(\"Categoria no encontrada\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php?codigo=999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ],
+          "query": [
+            {
+              "key": "codigo",
+              "value": "999"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "06 - Sin credenciales",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "pm.test(\"Mensaje de autorización inválida\", function () {",
+              "    pm.expect(pm.response.json().Error).to.eql(\"Autorizacion Invalida\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ]
+        }
+      }
+    },
+    {
+      "name": "07 - Credenciales incorrectas",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "1"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "incorrecta"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ]
+        }
+      }
+    },
+    {
+      "name": "08 - Crear categoría 5",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test(\"Inserción realizada\", function () {",
+              "    pm.expect(pm.response.json().Correcto).to.eql(\"Insercion realizada\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"codigo\":5,\"nombre\":\"Monitores\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ]
+        }
+      }
+    },
+    {
+      "name": "09 - Consultar categoría creada",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Devuelve Monitores\", function () {",
+              "    pm.expect(pm.response.json().nombre).to.eql(\"Monitores\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php?codigo=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ],
+          "query": [
+            {
+              "key": "codigo",
+              "value": "5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "10 - Actualizar categoría 5",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Se modificó una fila\", function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.Correcto).to.eql(\"Actualizacion ejecutada\");",
+              "    pm.expect(body[\"Filas modificadas\"]).to.eql(1);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"codigo\":5,\"nombre\":\"Monitores LED\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ]
+        }
+      }
+    },
+    {
+      "name": "11 - Consultar categoría actualizada",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Devuelve Monitores LED\", function () {",
+              "    pm.expect(pm.response.json().nombre).to.eql(\"Monitores LED\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php?codigo=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ],
+          "query": [
+            {
+              "key": "codigo",
+              "value": "5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "12 - POST con datos incompletos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test(\"Mensaje de datos faltantes\", function () {",
+              "    pm.expect(pm.response.json().Error).to.eql(\"Faltan datos\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"codigo\":6}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ]
+        }
+      }
+    },
+    {
+      "name": "13 - Método no permitido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 405\", function () {",
+              "    pm.response.to.have.status(405);",
+              "});",
+              "pm.test(\"Indica los métodos permitidos\", function () {",
+              "    pm.expect(pm.response.headers.get(\"Allow\")).to.include(\"GET\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ]
+        }
+      }
+    },
+    {
+      "name": "14 - Eliminar categoría 5",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Eliminación realizada\", function () {",
+              "    pm.expect(pm.response.json().Correcto).to.eql(\"Eliminacion realizada\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"codigo\":5}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ]
+        }
+      }
+    },
+    {
+      "name": "15 - Verificar eliminación",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"Categoría no encontrada\", function () {",
+              "    pm.expect(pm.response.json().Error).to.eql(\"Categoria no encontrada\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php?codigo=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ],
+          "query": [
+            {
+              "key": "codigo",
+              "value": "5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "16 - Eliminar de nuevo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Código 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test(\"Categoría no encontrada\", function () {",
+              "    pm.expect(pm.response.json().Error).to.eql(\"Categoria no encontrada\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-Cedula",
+            "value": "{{cedula}}"
+          },
+          {
+            "key": "X-Contrasena",
+            "value": "{{clave}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"codigo\":5}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/controlador/categoria.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "controlador",
+            "categoria.php"
+          ]
+        }
+      }
+    }
+  ]
+}

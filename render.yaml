@@ -1,0 +1,33 @@
+# Blueprint de Render para la API de categorias.
+#
+# Al conectar este repositorio en Render (New > Blueprint) se crea el
+# servicio web automaticamente. Las variables marcadas con sync: false
+# se solicitan en el asistente y no se guardan en el repositorio.
+#
+# NOTA: Render no ofrece MySQL gestionado. Antes de desplegar debe crear
+# una base MySQL externa (por ejemplo Aiven) o un servicio MySQL privado
+# en Render con disco persistente. Vea DEPLOY_RENDER.md para los pasos.
+services:
+  - type: web
+    name: api-categorias
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # Crea las tablas y los datos iniciales en cada arranque (es seguro:
+      # usa CREATE TABLE IF NOT EXISTS e INSERT IGNORE).
+      - key: AUTO_INIT_DB
+        value: "true"

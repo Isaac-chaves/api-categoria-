@@ -1,0 +1,7 @@
+# Archivos locales que no deben subirse al repositorio.
+.env
+.env.local
+.env.*.local
+
+# Configuracion local de Docker (opcional).
+docker-compose.override.yml
